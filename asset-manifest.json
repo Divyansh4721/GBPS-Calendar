@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/GBPS-Calendar/static/css/main.8a685450.css",
+    "main.js": "/GBPS-Calendar/static/js/main.839ee6c6.js",
+    "static/media/calendar.txt": "/GBPS-Calendar/static/media/calendar.bad2e5d79da2c57694b9.txt",
+    "index.html": "/GBPS-Calendar/index.html",
+    "main.8a685450.css.map": "/GBPS-Calendar/static/css/main.8a685450.css.map",
+    "main.839ee6c6.js.map": "/GBPS-Calendar/static/js/main.839ee6c6.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8a685450.css",
+    "static/js/main.839ee6c6.js"
+  ]
+}
