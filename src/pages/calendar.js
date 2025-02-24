@@ -1,350 +1,324 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import calendarData from './calendar.txt';
-const BrandHeader = () => (
-    <div className="bg-gradient-to-r from-orange-500 to-yellow-500">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                    <img
-                        className="h-24 w-24"
-                        src='logo.png'
-                        alt="GBPS Trust Logo"
-                    />
-                    <div>
-                        <h1 className="text-4xl font-bold text-white">GBPS Trust Vrindavan</h1>
-                        <p className="text-2xl text-yellow-100">श्री गौड़ीय वैष्णव व्रतोत्सव तालिका</p>
-                        <p className="text-2xl text-yellow-100">श्री गौराब्द - 539 एवं विक्रमी संव‌त् 2082</p>
-                    </div>
-                </div>
-                <div className="hidden md:block">
-                    <div className="bg-orange-600/30 backdrop-blur-sm px-4 py-2 rounded-lg">
-                        <p className="text-white text-sm">
-                            Serving the Vaishnava Community
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-);
+import { Search, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { getCalendarData } from './firebase';
+import Header from '../components/header'
 const CalendarView = ({ events, selectedDate, onSelectDate }) => {
-    const [currentMonth, setCurrentMonth] = useState(new Date(2025, 3, 1));
-    const daysInMonth = new Date(
-        currentMonth.getFullYear(),
-        currentMonth.getMonth() + 1,
-        0
-    ).getDate();
-    const firstDayOfMonth = new Date(
-        currentMonth.getFullYear(),
-        currentMonth.getMonth(),
-        1
-    ).getDay();
-    const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const handlePrevMonth = () => {
-        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
-    };
-    const handleNextMonth = () => {
-        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
-    };
-    const getDayEvents = (day) => {
-        const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-        return events.filter(event => {
-            const eventDate = new Date(event.dateObj);
-            return eventDate.toDateString() === date.toDateString();
-        });
-    };
-    return (
-        <div className="bg-white rounded-lg shadow-lg p-4">
-            <div className="flex justify-between items-center mb-4">
-                <button
-                    onClick={handlePrevMonth}
-                    className="p-2 hover:bg-orange-100 rounded-full transition-colors"
-                >
-                    <ChevronLeft className="h-5 w-5 text-orange-500" />
-                </button>
-                <h2 className="text-lg font-semibold text-orange-800">
-                    {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-                </h2>
-                <button
-                    onClick={handleNextMonth}
-                    className="p-2 hover:bg-orange-100 rounded-full transition-colors"
-                >
-                    <ChevronRight className="h-5 w-5 text-orange-500" />
-                </button>
-            </div>
-            <div className="grid grid-cols-7 gap-1 mb-2">
-                {dayNames.map(day => (
-                    <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
-                        {day}
-                    </div>
-                ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: firstDayOfMonth }).map((_, index) => (
-                    <div key={`empty-${index}`} className="h-12 p-1" />
-                ))}
-                {Array.from({ length: daysInMonth }).map((_, index) => {
-                    const day = index + 1;
-                    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-                    const dayEvents = getDayEvents(day);
-                    const isSelected = selectedDate?.toDateString() === date.toDateString();
-                    const hasEvents = dayEvents.length > 0;
-                    return (
-                        <button
-                            key={day}
-                            onClick={() => onSelectDate(date)}
-                            className={`h-12 p-1 relative rounded-lg transition-colors
-                ${isSelected ? 'bg-orange-500 text-white' : 'hover:bg-orange-100'}
-                ${hasEvents ? 'font-semibold' : ''}`}
-                        >
-                            <span className="text-sm">{day}</span>
-                            {hasEvents && (
-                                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-                                    <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-orange-500'}`} />
-                                </div>
-                            )}
-                        </button>
-                    );
-                })}
-            </div>
-        </div>
-    );
-};
-const CalendarUI = () => {
-    const [events, setEvents] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedSummary, setSelectedSummary] = useState('');
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const handleDateSelect = (date) => {
-        if (date !== selectedDate) {
-            setSearchTerm('');
-            setSelectedSummary('');
-        }
-        setSelectedDate(date === selectedDate ? null : date);
-    };
-    const parseEvents = (icalData) => {
-        const eventRegex = /BEGIN:VEVENT([\s\S]*?)END:VEVENT/g;
-        const events = [];
-        let match;
-        while ((match = eventRegex.exec(icalData)) !== null) {
-            const eventData = match[1];
-            const event = {};
-            const properties = eventData.split('\n');
-            properties.forEach(prop => {
-                const [key, ...value] = prop.split(':');
-                if (key && value.length) {
-                    const cleanKey = key.split(';')[0].trim();
-                    event[cleanKey] = value.join(':').trim();
-                }
-            });
-            function formatDate(date) {
-                const months = [
-                    'January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'
-                ];
-                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                const dayName = days[date.getDay()];
-                const dayNumber = date.getDate();
-                const monthName = months[date.getMonth()];
-                const year = date.getFullYear();
-                return `${dayName} ${dayNumber} ${monthName} ${year}`;
-            }
-            if (event.DTSTART) {
-                const date = event.DTSTART.replace('VALUE=DATE:', '');
-                event.dateObj = new Date(
-                    date.slice(0, 4),
-                    parseInt(date.slice(4, 6)) - 1,
-                    date.slice(6, 8)
-                );
-                event.formattedDate = formatDate(event.dateObj);
-            }
-            events.push(event);
-        }
-        const processedEvents = events.map(event => {
-            if (event.SUMMARY?.toLowerCase().includes('एकादशी')) {
-                const nextDay = new Date(event.dateObj);
-                nextDay.setDate(nextDay.getDate() + 1);
-                const breakFastEvent = events.find(e =>
-                    e.dateObj?.getTime() === nextDay.getTime() &&
-                    e.SUMMARY?.toLowerCase().includes('पारण')
-                );
-                if (breakFastEvent) {
-                    return {
-                        ...event,
-                        breakFastDetails: breakFastEvent.SUMMARY
-                    };
-                }
-            }
-            return event;
-        });
-        return processedEvents;
-    };
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const response = await fetch(calendarData);
-                const text = await response.text();
-                const parsedEvents = parseEvents(text);
-                setEvents(parsedEvents);
-                setError(null);
-            } catch (err) {
-                console.error('Error loading calendar data:', err);
-                setError('Failed to load calendar data. Please try again later.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
-    function getLevenshteinDistance(str1, str2) {
-        const matrix = Array(str2.length + 1).fill(null).map(() =>
-            Array(str1.length + 1).fill(null)
-        );
-        for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
-        for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
-        for (let j = 1; j <= str2.length; j++) {
-            for (let i = 1; i <= str1.length; i++) {
-                const substitutionCost = str1[i - 1] === str2[j - 1] ? 0 : 1;
-                matrix[j][i] = Math.min(
-                    matrix[j][i - 1] + 1,
-                    matrix[j - 1][i] + 1,
-                    matrix[j - 1][i - 1] + substitutionCost
-                );
-            }
-        }
-        return matrix[str2.length][str1.length];
-    }
-
-    function containsFuzzyMatch(text, searchTerm, maxDistance = 2) {
-        if (!text || !searchTerm) return false;
-        text = text.toLowerCase();
-        searchTerm = searchTerm.toLowerCase();
-        if (text.includes(searchTerm)) return true;
-        const words = text.split(/\s+/);
-        for (const word of words) {
-            if (Math.abs(word.length - searchTerm.length) > maxDistance) continue;
-            if (getLevenshteinDistance(word, searchTerm) <= maxDistance) return true;
-        }
-        return false;
-    }
-    const filteredEvents = events.filter(event => {
-        const searchTermLower = searchTerm.toLowerCase();
-        const summaryMatches = searchTerm === '' || containsFuzzyMatch(event.SUMMARY, searchTermLower);
-        const descriptionMatches = searchTerm === '' || containsFuzzyMatch(event.DESCRIPTION, searchTermLower);
-        const matchesSearch = searchTerm === '' || summaryMatches || descriptionMatches;
-        const matchesSummary = !selectedSummary || event.SUMMARY === selectedSummary;
-        const matchesDate = !selectedDate || event.dateObj?.toDateString() === selectedDate.toDateString();
-        return matchesSearch && matchesSummary && matchesDate;
+  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 3, 1));
+  const daysInMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+    0
+  ).getDate();
+  const firstDayOfMonth = new Date(
+    currentMonth.getFullYear(),
+    currentMonth.getMonth(),
+    1
+  ).getDay();
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const handlePrevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+  const handleNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+  const getDayEvents = (day) => {
+    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    return events.filter(event => {
+      const eventDate = new Date(event.dateObj);
+      return eventDate.toDateString() === date.toDateString();
     });
-    const filteredEventsStraight = events.filter(event => {
-        const searchTermLower = searchTerm.toLowerCase();
-        const summaryMatches = event.SUMMARY?.toLowerCase().includes(searchTermLower);
-        const descriptionMatches = event.DESCRIPTION?.toLowerCase().includes(searchTermLower);
-        const matchesSearch = searchTerm === '' || summaryMatches || descriptionMatches;
-        const matchesSummary = !selectedSummary || event.SUMMARY === selectedSummary;
-        const matchesDate = !selectedDate || event.dateObj?.toDateString() === selectedDate.toDateString();
-        return matchesSearch && matchesSummary && matchesDate;
-    });
-    const uniqueSummaries = [...new Set(events.map(event => event.SUMMARY))];
-    if (loading) {
-        return (
-            <>
-                <BrandHeader />
-                <div className="flex justify-center items-center min-h-64">
-                    <div className="text-lg text-gray-600">Loading calendar data...</div>
-                </div>
-            </>
-        );
-    }
-    if (error) {
-        return (
-            <>
-                <BrandHeader />
-                <div className="flex justify-center items-center min-h-64">
-                    <div className="text-lg text-red-600">{error}</div>
-                </div>
-            </>
-        );
-    }
-    return (
-        <div className="min-h-screen bg-orange-50">
-            <BrandHeader />
-            <div className="max-w-6xl mx-auto p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-1">
-                        <CalendarView
-                            events={events}
-                            selectedDate={selectedDate}
-                            onSelectDate={handleDateSelect}
-                        />
-                    </div>
-                    <div className="md:col-span-2">
-                        <div className="bg-white rounded-lg shadow-lg p-6">
-                            <div className="flex flex-col md:flex-row gap-4 mb-6">
-                                <div className="flex-1 relative w-full md:w-1/2">
-                                    <input
-                                        type="text"
-                                        placeholder="Search events..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full p-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                    />
-                                    <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
-                                </div>
-                                <select
-                                    value={selectedSummary}
-                                    onChange={(e) => setSelectedSummary(e.target.value)}
-                                    className="flex-1 w-full md:w-1/2 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                >
-                                    <option value="">All Events</option>
-                                    {uniqueSummaries.map(summary => (
-                                        <option key={summary} value={summary}>
-                                            {summary}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="space-y-4">
-                                {filteredEvents.map(event => (
-                                    <div
-                                        key={event.UID}
-                                        className="p-4 border border-orange-100 rounded-lg hover:shadow-md transition-shadow bg-white"
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h2 className="text-lg font-semibold text-orange-800">{event.SUMMARY}</h2>
-                                                <p className="text-gray-600">{event.formattedDate}</p>
-                                                {event.breakFastDetails && (
-                                                    <p className="mt-2 text-emerald-600">
-                                                        {event.breakFastDetails}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        {event.DESCRIPTION && (
-                                            <p className="mt-2 text-gray-700">{event.DESCRIPTION}</p>
-                                        )}
-                                    </div>
-                                ))}
-                                {filteredEvents.length === 0 && (
-                                    <p className="text-center text-gray-500 py-8">
-                                        No events found matching your criteria
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  };
+  return (
+    <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+      <div className="bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-3 text-white">
+        <div className="flex justify-between items-center">
+          <button
+            onClick={handlePrevMonth}
+            className="p-2 hover:bg-white/20 rounded-full transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <h2 className="text-xl font-bold">
+            {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+          </h2>
+          <button
+            onClick={handleNextMonth}
+            className="p-2 hover:bg-white/20 rounded-full transition-colors"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
-    );
+      </div>
+      <div className="p-4">
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {dayNames.map(day => (
+            <div key={day} className="text-center text-sm font-semibold text-purple-800 py-2">
+              {day}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: firstDayOfMonth }).map((_, index) => (
+            <div key={`empty-${index}`} className="h-12 p-1" />
+          ))}
+          {Array.from({ length: daysInMonth }).map((_, index) => {
+            const day = index + 1;
+            const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+            const dayEvents = getDayEvents(day);
+            const isSelected = selectedDate?.toDateString() === date.toDateString();
+            const hasEvents = dayEvents.length > 0;
+            return (
+              <button
+                key={day}
+                onClick={() => onSelectDate(date)}
+                className={`h-12 p-1 relative rounded-lg transition-all
+                  ${isSelected
+                    ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md transform scale-105'
+                    : hasEvents
+                      ? 'hover:bg-purple-100 bg-purple-50'
+                      : 'hover:bg-gray-100'
+                  }
+                `}
+              >
+                <span className={`text-sm ${hasEvents && !isSelected ? 'font-bold text-purple-700' : ''}`}>
+                  {day}
+                </span>
+                {hasEvents && (
+                  <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-0.5">
+                    {dayEvents.length > 1 ? (
+                      <>
+                        <div className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-pink-500'}`} />
+                        <div className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-purple-500'}`} />
+                        <div className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-pink-500'}`} />
+                      </>
+                    ) : (
+                      <div className={`w-2 h-2 rounded-full ${isSelected ? 'bg-white' : 'bg-pink-500'}`} />
+                    )}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
 };
-export default CalendarUI;
+const EventCard = ({ event }) => {
+  return (
+    <div
+      className="relative overflow-hidden rounded-xl border-2 border-purple-100 hover:shadow-xl transition-all duration-300 bg-white group"
+    >
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"></div>
+      <div className="p-5">
+        <div className="flex items-start gap-4">
+          <div className="min-w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md">
+            <Calendar size={24} />
+          </div>
+          <div className="flex-1">
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-gray-500">{event.formattedDate}</p>
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg">
+                <h2 className="text-xl font-bold text-purple-800 mb-1">{event.sumhindi}</h2>
+                <h3 className="text-lg text-pink-700">{event.sumenglish}</h3>
+              </div>
+              {(event.remarkhindi || event.remarkenglish) && (
+                <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-3 rounded-lg">
+                  {event.remarkhindi && (
+                    <p className="mb-2 text-amber-800">
+                      {event.remarkhindi}
+                    </p>
+                  )}
+                  {event.remarkenglish && (
+                    <p className="text-amber-700">
+                      {event.remarkenglish}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+const EnhancedCalendarUI = () => {
+  const [events, setEvents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSummary, setSelectedSummary] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const handleDateSelect = (date) => {
+    if (date !== selectedDate) {
+      setSearchTerm('');
+      setSelectedSummary('');
+    }
+    setSelectedDate(date === selectedDate ? null : date);
+  };
+  const handleSearchChange = (e) => {
+    setSelectedSummary('');
+    setSelectedDate(null);
+    setSearchTerm(e.target.value);
+  };
+  const handleSummaryChange = (e) => {
+    setSearchTerm('');
+    setSelectedDate(null);
+    setSelectedSummary(e.target.value);
+  };
+  const parseEvents = (eventPayloads) => {
+    function formatDate(date) {
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const dayName = days[date.getDay()];
+      const dayNumber = date.getDate();
+      const monthName = months[date.getMonth()];
+      const year = date.getFullYear();
+      return `${dayName}, ${dayNumber} ${monthName} ${year}`;
+    }
+    return eventPayloads.map(payload => {
+      const event = {};
+      event.id = payload.id;
+      if (payload.date) {
+        event.dateObj = new Date(
+          payload.date.slice(0, 4),
+          parseInt(payload.date.slice(4, 6)) - 1,
+          payload.date.slice(6, 8)
+        );
+        event.formattedDate = formatDate(event.dateObj);
+      }
+      if (payload.sumenglish) {
+        event.sumenglish = payload.sumenglish;
+      }
+      if (payload.sumhindi) {
+        event.sumhindi = payload.sumhindi;
+      }
+      if (payload.remarkenglish) {
+        event.remarkenglish = payload.remarkenglish;
+      }
+      if (payload.remarkhindi) {
+        event.remarkhindi = payload.remarkhindi;
+      }
+      return event;
+    });
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await getCalendarData();
+        const parsedEvents = parseEvents(data);
+        setEvents(parsedEvents);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading calendar data:', err);
+        setError('Failed to load calendar data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+  const filteredEvents = events.filter(event => {
+    const searchTermLower = searchTerm.toLowerCase();
+    const summaryMatches = event.sumenglish?.toLowerCase().includes(searchTermLower);
+    const descriptionMatches = event.remarkenglish?.toLowerCase().includes(searchTermLower);
+    const matchesSearch = searchTerm === '' || summaryMatches || descriptionMatches;
+    const matchesSummary = !selectedSummary || event.sumenglish === selectedSummary;
+    const matchesDate = !selectedDate || event.dateObj?.toDateString() === selectedDate.toDateString();
+    return matchesSearch && matchesSummary && matchesDate;
+  });
+  const uniqueSummaries = [...new Set(events.map(event => event.sumenglish))];
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="flex justify-center items-center min-h-64 py-12">
+          <div className="text-xl text-purple-600 animate-pulse flex flex-col items-center">
+            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            Loading calendar data...
+          </div>
+        </div>
+      </>
+    );
+  }
+  if (error) {
+    return (
+      <>
+        <Header />
+        <div className="flex justify-center items-center min-h-64 py-12">
+          <div className="text-xl text-red-600 bg-red-50 px-6 py-4 rounded-xl border border-red-200">
+            {error}
+          </div>
+        </div>
+      </>
+    );
+  }
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50">
+      <Header />
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-1">
+            <CalendarView
+              events={events}
+              selectedDate={selectedDate}
+              onSelectDate={handleDateSelect}
+            />
+            <div className="mt-6 bg-white rounded-xl p-5 shadow-xl">
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="w-full p-3 pl-10 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                />
+                <Search className="absolute left-3 top-3.5 text-purple-400" size={20} />
+              </div>
+              <select
+                value={selectedSummary}
+                onChange={handleSummaryChange}
+                className="w-full mt-4 p-3 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              >
+                <option value="">All Events</option>
+                {uniqueSummaries.map(summary => (
+                  <option key={summary} value={summary}>
+                    {summary}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="md:col-span-2">
+            <div className="space-y-6">
+              {filteredEvents.length > 0 ? (
+                filteredEvents.map(event => (
+                  <EventCard key={event.id} event={event} />
+                ))
+              ) : (
+                <div className="bg-white rounded-xl shadow-xl p-8 text-center">
+                  <div className="text-purple-300 mb-4">
+                    <Calendar size={64} className="mx-auto" />
+                  </div>
+                  <p className="text-xl text-purple-800 font-medium">
+                    No events found matching your criteria
+                  </p>
+                  <p className="text-gray-500 mt-2">
+                    Try adjusting your filters or selecting a different date
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+export default EnhancedCalendarUI;

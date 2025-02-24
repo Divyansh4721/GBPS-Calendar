@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Calendar from './pages/calendar';
+import Upload from './pages/upload';
 import './App.css';
 function App() {
     return (
@@ -8,6 +9,7 @@ function App() {
             <div className="App">
                 <Routes>
                     <Route path="/" element={<Calendar />} />
+                    <Route path="/upload" element={<Upload />} />
                     <Route path="/GBPS-Calendar" element={<Calendar />} />
                 </Routes>
             </div>
