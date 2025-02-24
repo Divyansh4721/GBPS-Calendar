@@ -7,7 +7,8 @@ function App() {
         <Router>
             <div className="App">
                 <Routes>
-                    <Route path="*" element={<Calendar />} />
+                    <Route path="/" element={<Calendar />} />
+                    <Route path="/GBPS-Calendar" element={<Calendar />} />
                 </Routes>
             </div>
         </Router>

@@ -13,8 +13,8 @@ const BrandHeader = () => (
                     />
                     <div>
                         <h1 className="text-4xl font-bold text-white">GBPS Trust Vrindavan</h1>
-                        <p className="text-2xl text-yellow-100">गौरब्द 539</p>
-                        <p className="text-2xl text-yellow-100">विक्रम संवत 2082</p>
+                        <p className="text-2xl text-yellow-100">श्री गौड़ीय वैष्णव व्रतोत्सव तालिका</p>
+                        <p className="text-2xl text-yellow-100">श्री गौराब्द - 539 एवं विक्रमी संव‌त् 2082</p>
                     </div>
                 </div>
                 <div className="hidden md:block">
@@ -29,7 +29,7 @@ const BrandHeader = () => (
     </div>
 );
 const CalendarView = ({ events, selectedDate, onSelectDate }) => {
-    const [currentMonth, setCurrentMonth] = useState(new Date(2025, 0, 1));
+    const [currentMonth, setCurrentMonth] = useState(new Date(2025, 3, 1));
     const daysInMonth = new Date(
         currentMonth.getFullYear(),
         currentMonth.getMonth() + 1,
