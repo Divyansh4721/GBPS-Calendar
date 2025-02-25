@@ -1,6 +1,6 @@
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, getDocs, query, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, deleteDoc } from 'firebase/firestore';
 const firebaseConfig = {
     apiKey: "AIzaSyCO-Eo1BgF8AZDpeR3hF-S6qSt5DJcTtdg",
     authDomain: "gbpscalendar.firebaseapp.com",
