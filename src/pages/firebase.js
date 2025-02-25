@@ -39,50 +39,12 @@ export const getCalendarData = async () => {
                 ...doc.data()
             });
         });
-        return data;
+        const sortedData = data.sort((a, b) => {
+            return a.date.localeCompare(b.date);
+        });
+        return sortedData;
     } catch (error) {
         console.error("Error getting Calendar data:", error);
-        throw error;
-    }
-};
-export const getCalendarById = async (id) => {
-    try {
-        const docRef = doc(db, "Calendar", id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            return {
-                id: docSnap.id,
-                ...docSnap.data()
-            };
-        } else {
-            return null;
-        }
-    } catch (error) {
-        console.error("Error getting Calendar by ID:", error);
-        throw error;
-    }
-};
-export const updateCalendarData = async (id, calendarData) => {
-    try {
-        const docRef = doc(db, "Calendar", id);
-        const updatedData = {};
-        if (calendarData.date !== undefined) updatedData.date = calendarData.date;
-        if (calendarData.sumenglish !== undefined) updatedData.sumenglish = calendarData.sumenglish;
-        if (calendarData.sumhindi !== undefined) updatedData.sumhindi = calendarData.sumhindi;
-        if (calendarData.remarkhindi !== undefined) updatedData.remarkhindi = calendarData.remarkhindi;
-        if (calendarData.remarkenglish !== undefined) updatedData.remarkenglish = calendarData.remarkenglish;
-        await updateDoc(docRef, updatedData);
-    } catch (error) {
-        console.error("Error updating Calendar data:", error);
-        throw error;
-    }
-};
-export const deleteCalendarData = async (id) => {
-    try {
-        const docRef = doc(db, "Calendar", id);
-        await deleteDoc(docRef);
-    } catch (error) {
-        console.error("Error deleting Calendar data:", error);
         throw error;
     }
 };
@@ -100,4 +62,38 @@ export const deleteAllCalendarData = async () => {
         throw error;
     }
 };
+export const loginUser = async (username, password) => {
+    try {
+        const q = query(collection(db, "users"));
+        const querySnapshot = await getDocs(q);
+        const data = [];
+        querySnapshot.forEach((doc) => {
+            data.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        if (data.filter((item) => item.username === username && item.password === password).length) {
+            localStorage.setItem('authToken', JSON.stringify({
+                currentTime: Date.now(),
+                expiresIn: 1 * 24 * 60 * 60 * 1000, // 1 days in milliseconds
+            }));
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error getting Calendar data:", error);
+        throw error;
+    }
+};
+export const checkTokenValid = () => {
+    const authData = JSON.parse(localStorage.getItem('authToken'));
+    if (!authData) {
+        return false;
+    }
+    const currentTime = Date.now();
+    const tokenTime = authData.currentTime;
+    const expirationPeriod = authData.expiresIn;
+    return currentTime < (tokenTime + expirationPeriod);
+}
 export { db };

@@ -1,6 +1,14 @@
 import React from 'react';
+import { Upload } from 'lucide-react';
 const Header = () => (
-  <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 shadow-lg">
+  <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 shadow-lg relative">
+    <a 
+      href="/GBPS-Calendar/upload" 
+      className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 backdrop-blur-sm p-1 rounded-full transition-all duration-300 shadow-lg z-20"
+      title="Upload Calendar"
+    >
+      <Upload size={20} color="white" />
+    </a>
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col md:flex-row items-center gap-6">
