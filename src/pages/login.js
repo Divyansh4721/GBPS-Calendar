@@ -59,11 +59,11 @@ const LoginPage = () => {
                                 type="submit"
                                 disabled={isLoading}
                                 className={`w-full rounded-lg py-3 px-4 text-white font-medium transition-all duration-300
-                  ${isLoading
+                                ${isLoading
                                         ? 'bg-gradient-to-r from-purple-400 to-pink-400 cursor-not-allowed'
                                         : 'bg-gradient-to-r from-purple-600 to-pink-500 hover:shadow-md hover:from-purple-700 hover:to-pink-600'
                                     }
-                `}
+                                `}
                             >
                                 <div className="flex items-center justify-center">
                                     {isLoading ? (
