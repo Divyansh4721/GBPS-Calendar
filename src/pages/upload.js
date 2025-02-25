@@ -9,6 +9,7 @@ const Uploader = () => {
   const [error, setError] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -36,12 +37,18 @@ const Uploader = () => {
     if (!csvData || csvData.length === 0) return;
     setUploading(true);
     setError(null);
+    setUploadProgress({ current: 0, total: csvData.length });
+    
     try {
       await deleteAllCalendarData();
-      for (let doc of csvData) {
+      
+      for (let i = 0; i < csvData.length; i++) {
+        const doc = csvData[i];
         doc[0] = doc[0].split('-').reverse().join('');
         await addCalendarData(doc);
+        setUploadProgress({ current: i + 1, total: csvData.length });
       }
+      
       setUploadSuccess(true);
     } catch (err) {
       setError(`Error uploading data: ${err.message}`);
@@ -93,7 +100,7 @@ const Uploader = () => {
                       {uploading ? (
                         <>
                           <div className="animate-spin mr-2 h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-                          Uploading...
+                          {uploadProgress.current}/{uploadProgress.total} Uploading...
                         </>
                       ) : (
                         <>
@@ -151,7 +158,7 @@ const Uploader = () => {
               <div className="flex justify-center items-center min-h-64 bg-white rounded-xl shadow-xl p-8">
                 <div className="text-xl text-purple-600 animate-pulse flex flex-col items-center">
                   <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                  Uploading data to server...
+                  Uploading data to server: {uploadProgress.current}/{uploadProgress.total}
                 </div>
               </div>
             ) : csvData && csvData.length > 0 ? (

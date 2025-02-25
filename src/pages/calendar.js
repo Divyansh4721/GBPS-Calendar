@@ -71,24 +71,40 @@ const CalendarView = ({ events, selectedDate, onSelectDate }) => {
             const dayEvents = getDayEvents(day);
             const isSelected = selectedDate?.toDateString() === date.toDateString();
             const hasEvents = dayEvents.length > 0;
+            // Get the first event's image if there are events
+            const eventImage = hasEvents && dayEvents[0].imageUrl ?
+              `/GBPS-Calendar/${dayEvents[0].imageUrl}` :
+              `/GBPS-Calendar/logo.png`;
             return (
               <button
                 key={day}
                 onClick={() => onSelectDate(date)}
-                className={`h-12 p-1 relative rounded-lg transition-all
+                className={`h-12 p-1 relative rounded-lg transition-all overflow-hidden
                   ${isSelected
                     ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md transform scale-105'
                     : hasEvents
-                      ? 'hover:bg-purple-100 bg-purple-50'
+                      ? 'hover:bg-purple-100'
                       : 'hover:bg-gray-100'
                   }
                 `}
               >
-                <span className={`text-sm ${hasEvents && !isSelected ? 'font-bold text-purple-700' : ''}`}>
+                {/* Background image for events */}
+                {hasEvents && (
+                  <div className="absolute inset-0 z-0 opacity-20">
+                    <img
+                      src={eventImage}
+                      alt="Event"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                {/* Day number with z-index to appear above the image */}
+                <span className={`relative z-10 text-sm ${hasEvents && !isSelected ? 'font-bold text-purple-700' : ''}`}>
                   {day}
                 </span>
+                {/* Event indicators */}
                 {hasEvents && (
-                  <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-0.5">
+                  <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 flex space-x-0.5 z-10">
                     {dayEvents.length > 1 ? (
                       <>
                         <div className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-pink-500'}`} />
@@ -116,8 +132,12 @@ const EventCard = ({ event }) => {
       <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"></div>
       <div className="p-5">
         <div className="flex items-start gap-4">
-          <div className="min-w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md">
-            <Calendar size={24} />
+          <div className="min-w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md overflow-hidden">
+            <img
+              src={`/GBPS-Calendar/${event.imageUrl ? event.imageUrl : 'logo.png'}`}
+              alt="Event"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="flex-1">
             <div className="flex flex-col gap-3">
@@ -204,6 +224,9 @@ const EnhancedCalendarUI = () => {
       if (payload.remarkhindi) {
         event.remarkhindi = payload.remarkhindi;
       }
+      if (payload.imageURL) {
+        event.imageURL = payload.imageURL;
+      }
       return event;
     });
   };
@@ -225,10 +248,11 @@ const EnhancedCalendarUI = () => {
     fetchData();
   }, []);
   const filteredEvents = events.filter(event => {
-    const searchTermLower = searchTerm.toLowerCase();
-    const summaryMatches = event.sumenglish?.toLowerCase().includes(searchTermLower);
-    const descriptionMatches = event.remarkenglish?.toLowerCase().includes(searchTermLower);
-    const matchesSearch = searchTerm === '' || summaryMatches || descriptionMatches;
+    const summaryMatchesHindi = event.sumhindi?.includes(searchTerm);
+    const descriptionMatchesHindi = event.remarkhindi?.includes(searchTerm);
+    const summaryMatchesEnglish = event.sumenglish?.toLowerCase().includes(searchTerm.toLowerCase());
+    const descriptionMatchesEnglish = event.remarkenglish?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = searchTerm === '' || summaryMatchesHindi || summaryMatchesEnglish || descriptionMatchesHindi || descriptionMatchesEnglish;
     const matchesSummary = !selectedSummary || event.sumenglish === selectedSummary;
     const matchesDate = !selectedDate || event.dateObj?.toDateString() === selectedDate.toDateString();
     return matchesSearch && matchesSummary && matchesDate;
@@ -250,7 +274,12 @@ const EnhancedCalendarUI = () => {
   if (error) {
     return (
       <>
-        <Header />
+        <Header>
+          <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
+            <p className="text-lg sm:text-xl md:text-2xl text-yellow-100 font-medium">श्री गौड़ीय वैष्णव व्रतोत्सव तालिका</p>
+            <p className="text-base sm:text-lg md:text-xl text-yellow-100">श्री गौराब्द - 539 एवं विक्रमी सम्वत् 2082</p>
+          </div>
+        </Header>
         <div className="flex justify-center items-center min-h-64 py-12">
           <div className="text-xl text-red-600 bg-red-50 px-6 py-4 rounded-xl border border-red-200">
             {error}
@@ -261,7 +290,12 @@ const EnhancedCalendarUI = () => {
   }
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50">
-      <Header />
+      <Header>
+        <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
+          <p className="text-lg sm:text-xl md:text-2xl text-yellow-100 font-medium">श्री गौड़ीय वैष्णव व्रतोत्सव तालिका</p>
+          <p className="text-base sm:text-lg md:text-xl text-yellow-100">श्री गौराब्द - 539 एवं विक्रमी सम्वत् 2082</p>
+        </div>
+      </Header>
       <div className="max-w-6xl mx-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">

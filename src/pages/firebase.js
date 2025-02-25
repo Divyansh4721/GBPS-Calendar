@@ -20,6 +20,7 @@ export const addCalendarData = async (calendarData) => {
             sumhindi: calendarData[2] || '',
             remarkenglish: calendarData[3] || '',
             remarkhindi: calendarData[4] || '',
+            imageURL: calendarData[5] || '',
         };
         const docRef = await addDoc(calendarCollectionRef, newData);
         return docRef.id;
