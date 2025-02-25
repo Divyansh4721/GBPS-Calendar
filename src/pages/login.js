@@ -27,7 +27,7 @@ const LoginPage = () => {
             <div className="w-full max-w-md">
                 <div className="bg-white rounded-xl shadow-xl overflow-hidden">
                     <div className="bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-4 text-white">
-                        <h2 className="text-xl font-bold text-center">Login</h2>
+                        <h2 className="text-xl font-bold text-center">GBPS Login</h2>
                     </div>
                     <div className="p-6 space-y-4">
                         <form onSubmit={handleSubmit} className="space-y-4">
