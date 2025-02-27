@@ -1,462 +1,131 @@
 [
     {
         "id": 1,
-        "name": "Soup 1",
-        "category": "Soup",
-        "ingredients": [],
-        "recipe": ""
+        "name": "मिलेटस की रोटी नंबर 1",
+        "category": "Roti",
+        "ingredients": [
+            "आटा नंबर 1 (गुरु जी की basket से)",
+            "सब्जी (गाजर, गोभी, जुकुनी, मेथी, बथुआ कोई भी एक)",
+            "गर्म पानी"
+        ],
+        "recipe": "एक छोटी कड़छी आटा सब्जी डालकर गर्म पानी से गूंध ले। आधी सब्जी आधा आटा होना चाहिए। आटा आधा घंटा रखे। तवे पर रोटी साफ कपड़े से सेके।"
     },
     {
         "id": 2,
-        "name": "Soup 2",
-        "category": "Soup",
-        "ingredients": [],
-        "recipe": ""
+        "name": "मिलेटस की रोटी नंबर 2",
+        "category": "Roti",
+        "ingredients": [
+            "आटा नंबर 2 (गुरु जी की basket से)",
+            "सब्जी (गाजर, गोभी, जुकुनी, मेथी, बथुआ कोई भी एक)",
+            "गर्म पानी"
+        ],
+        "recipe": "एक छोटी कड़छी आटा सब्जी डालकर गर्म पानी से गूंध ले। आधी सब्जी आधा आटा होना चाहिए। आटा आधा घंटा रखे। तवे पर रोटी साफ कपड़े से सेके।"
     },
     {
         "id": 3,
-        "name": "Soup 3",
-        "category": "Soup",
-        "ingredients": [],
-        "recipe": ""
+        "name": "फल मिक्स 1",
+        "category": "Salad",
+        "ingredients": [
+            "पपीता",
+            "अमरूद",
+            "खरबूजा",
+            "रसभरी"
+        ],
+        "recipe": "Any 2 or 3 fruits को सर्व कीजिए।"
     },
     {
         "id": 4,
-        "name": "Soup 4",
-        "category": "Soup",
-        "ingredients": [],
-        "recipe": ""
+        "name": "फल मिक्स 2",
+        "category": "Salad",
+        "ingredients": [
+            "पपीता",
+            "आम",
+            "स्ट्राबेरी",
+            "कीनू"
+        ],
+        "recipe": "Any 2 or 3 fruits को सर्व कीजिए।"
     },
     {
         "id": 5,
-        "name": "Soup 5",
-        "category": "Soup",
-        "ingredients": [],
-        "recipe": ""
+        "name": "फल मिक्स 3",
+        "category": "Salad",
+        "ingredients": [
+            "सेब",
+            "अमरूद",
+            "खरबूजा",
+            "रसभरी"
+        ],
+        "recipe": "Any 2 or 3 fruits को सर्व कीजिए।"
     },
     {
         "id": 6,
-        "name": "Soup 6",
-        "category": "Soup",
-        "ingredients": [],
-        "recipe": ""
+        "name": "फल मिक्स 4",
+        "category": "Salad",
+        "ingredients": [
+            "तरबूज",
+            "खरबूजा",
+            "नाशपाती",
+            "चैरी"
+        ],
+        "recipe": "Any 2 or 3 fruits को सर्व कीजिए।"
     },
     {
         "id": 7,
-        "name": "Sabudana Soup",
-        "category": "Soup",
+        "name": "फल मिक्स 5",
+        "category": "Salad",
         "ingredients": [
-            "Sabudana"
+            "नाशपाती",
+            "अमरूद",
+            "तरबूज",
+            "चैरी"
         ],
-        "recipe": ""
+        "recipe": "Any 2 or 3 fruits को सर्व कीजिए।"
     },
     {
         "id": 8,
-        "name": "Salad A",
+        "name": "फल मिक्स 6",
         "category": "Salad",
-        "ingredients": [],
-        "recipe": ""
+        "ingredients": [
+            "ड्रैगन",
+            "लीची",
+            "सेब",
+            "रसभरी"
+        ],
+        "recipe": "Any 2 or 3 fruits को सर्व कीजिए।"
     },
     {
         "id": 9,
-        "name": "Salad B",
+        "name": "फल मिक्स 7",
         "category": "Salad",
-        "ingredients": [],
-        "recipe": ""
+        "ingredients": [
+            "अनानास",
+            "अनार",
+            "अमरूद",
+            "आम"
+        ],
+        "recipe": "Any 2 or 3 fruits को सर्व कीजिए।"
     },
     {
         "id": 10,
-        "name": "Salad C",
-        "category": "Salad",
-        "ingredients": [],
-        "recipe": ""
+        "name": "नारियल पानी शहद",
+        "category": "Soup",
+        "ingredients": [
+            "नारियल का पानी",
+            "शहद (आधा चम्मच)"
+        ],
+        "recipe": "दोनो को मिलाकर स्टील bottle में भरकर स्टेज पर रखे।"
     },
     {
         "id": 11,
-        "name": "Mix Veg",
-        "category": "Sabji",
-        "ingredients": [],
-        "recipe": ""
-    },
-    {
-        "id": 12,
-        "name": "Lauki Sabji",
-        "category": "Sabji",
-        "ingredients": [
-            "Lauki (Bottle Gourd)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 13,
-        "name": "Baingan Bharta",
-        "category": "Sabji",
-        "ingredients": [
-            "Baingan (Eggplant)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 14,
-        "name": "Shalgam Bharta",
-        "category": "Sabji",
-        "ingredients": [
-            "Shalgam (Turnip)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 15,
-        "name": "Gajar, Gobhi, Methi",
-        "category": "Sabji",
-        "ingredients": [
-            "Gajar (Carrot)",
-            "Gobhi (Cauliflower)",
-            "Methi (Fenugreek)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 16,
-        "name": "Lauki Kofta",
-        "category": "Sabji",
-        "ingredients": [
-            "Lauki (Bottle Gourd)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 17,
-        "name": "Mix Veg Kofta",
-        "category": "Sabji",
-        "ingredients": [
-            "Mixed Vegetables"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 18,
-        "name": "Steamed Vegetables",
-        "category": "Sabji",
-        "ingredients": [
-            "Assorted Vegetables"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 19,
-        "name": "Soupy Vegetables",
-        "category": "Sabji",
-        "ingredients": [
-            "Assorted Vegetables"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 20,
-        "name": "Gajar Tamatar Chukandar with Lauki",
-        "category": "Sabji",
-        "ingredients": [
-            "Gajar (Carrot)",
-            "Tamatar (Tomato)",
-            "Chukandar (Beetroot)",
-            "Lauki (Bottle Gourd)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 21,
-        "name": "Shalgam Makhana Sabji",
-        "category": "Sabji",
-        "ingredients": [
-            "Shalgam (Turnip)",
-            "Makhana"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 22,
-        "name": "Millets Atta Roti 1",
-        "category": "Roti",
-        "ingredients": [
-            "Millets Flour"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 23,
-        "name": "Millets Atta Roti 2",
-        "category": "Roti",
-        "ingredients": [
-            "Millets Flour"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 24,
-        "name": "Singhade Sabudana Roti",
-        "category": "Roti",
-        "ingredients": [
-            "Singhada (Water Chestnut) Flour",
-            "Sabudana",
-            "Boiled Banana or Carrot"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 25,
-        "name": "Besan Chilla with Steamed Vegetables",
-        "category": "Roti",
-        "ingredients": [
-            "Besan (Gram Flour)",
-            "Steamed Vegetables"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 26,
-        "name": "Moong Chilla with Vegetables",
-        "category": "Roti",
-        "ingredients": [
-            "Moong Dal",
-            "Vegetables"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 27,
-        "name": "Chane ke Atte ka Chilla",
-        "category": "Roti",
-        "ingredients": [
-            "Chana (Chickpea) Flour"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 28,
-        "name": "Kale Chane",
-        "category": "Daal",
-        "ingredients": [
-            "Kale Chane (Black Chickpeas)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 29,
-        "name": "Moong Chilka Dal with Vegetables",
-        "category": "Daal",
-        "ingredients": [
-            "Moong Chilka Dal",
-            "Vegetables"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 30,
-        "name": "Moong Dhuli Dal with Vegetables",
-        "category": "Daal",
-        "ingredients": [
-            "Moong Dhuli Dal",
-            "Vegetables"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 31,
-        "name": "Chote Lal Rajma",
-        "category": "Daal",
-        "ingredients": [
-            "Chote Lal Rajma (Small Red Kidney Beans)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 32,
-        "name": "Dhaniya Tamatar Chutney",
-        "category": "Chatni",
-        "ingredients": [
-            "Dhaniya (Coriander)",
-            "Tamatar (Tomato)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 33,
-        "name": "Amrood Chutney",
-        "category": "Chatni",
-        "ingredients": [
-            "Amrood (Guava)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 34,
-        "name": "Nariyal Chutney",
-        "category": "Chatni",
-        "ingredients": [
-            "Nariyal (Coconut)"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 35,
-        "name": "Quinoa Khichdi",
-        "category": "Khichdi",
-        "ingredients": [
-            "Quinoa"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 36,
-        "name": "Ragi Rice",
-        "category": "Khichdi",
-        "ingredients": [
-            "Ragi"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 37,
-        "name": "Drink T1",
-        "category": "Drink",
-        "ingredients": [],
-        "recipe": ""
-    },
-    {
-        "id": 38,
-        "name": "Drink T2",
-        "category": "Drink",
-        "ingredients": [],
-        "recipe": ""
-    },
-    {
-        "id": 39,
-        "name": "Drink T3",
-        "category": "Drink",
-        "ingredients": [],
-        "recipe": ""
-    },
-    {
-        "id": 40,
-        "name": "Nariyal Pani with Honey",
-        "category": "Drink",
-        "ingredients": [
-            "Nariyal Pani (Coconut Water)",
-            "Honey"
-        ],
-        "recipe": ""
-    },
-    {
-        "id": 1,
-        "name": "Apple Drink",
+        "name": "Apple drink",
         "category": "Soup",
         "ingredients": [
-            "सेब (Apple) - 1",
-            "दालचीनी (Cinnamon) - 1/2 इंच पीस",
-            "लौंग (Clove) - 1",
-            "शहद (Honey) - 1/2 छोटा स्पून",
-            "पानी (Water) - डेढ़ गिलास"
+            "सेब -1",
+            "दालचीनी :- 1/2 इंच पीस",
+            "लौंग - 1",
+            "शहद :1/2 छोटा स्पून",
+            "पानी :- डेढ़ गिलास"
         ],
-        "recipe": "1. एप्पल को wash करके बिना छीले, काटकर, बीज निकालकर बेलन से CRUSH कर ले। 2. पानी में शहद को छोड़कर सभी वस्तुएं डालकर sim Gas पर 10 से 15 मिनट उबलने के लिए रखे जब तक कि पानी आधा (3/4 गिलास) न रह जाए। 3. छलनी से छानकर शहद मिलाकर गर्म ड्रिंक serve कीजिए।"
-    },
-    {
-        "id": 2,
-        "name": "गाजर, चुकंदर और टमाटर का सूप",
-        "category": "Soup",
-        "ingredients": [
-            "गाजर (Carrot) - 1",
-            "चुकंदर (Beetroot) - 1/4 पीस",
-            "टमाटर (Tomato) - 2 लाल",
-            "पीला नींबू (Lemon) - 1 छोटा स्पून",
-            "नमक (Salt) - 1/2 चम्मच",
-            "काली मिर्च (Black pepper) - 1 pinch",
-            "भुना जीरा (Roasted cumin) - 1/4 छोटा स्पून",
-            "पानी (Water) - डेढ़ गिलास"
-        ],
-        "recipe": "1. एक कूकर में गाजर, चुकंदर, टमाटर काट कर पानी डालकर 2 सीटी लगा ले। 2. ठंडा होने पर ब्लेंडर चला कर पीस कर छलनी में छान ले। 3. एक पैन में सूप को एक boil करे। उसमें नमक, काली मिर्च और भूना जीरा डाले। 4. गैस से उतारकर नींबू का रस डाले और गर्म serve करें।"
-    },
-    {
-        "id": 3,
-        "name": "मखाना",
-        "category": "Salad",
-        "ingredients": [
-            "मखाना (Fox nuts) - एक बड़ी कटोरी"
-        ],
-        "recipe": "एक बड़ी कटोरी मखाना बिना तेल के सूखे roast कीजिए।"
-    },
-    {
-        "id": 4,
-        "name": "Fruits",
-        "category": "Salad",
-        "ingredients": [
-            "पपीता (Papaya)",
-            "Any 2 other fruits (except restricted fruits)"
-        ],
-        "recipe": "पपीता के साथ any 2 फ्रूट्स सर्व कीजिए। किंतु त्याज्य fruits मत दीजिए।"
-    },
-    {
-        "id": 5,
-        "name": "काले चने",
-        "category": "Daal",
-        "ingredients": [
-            "काले चने (Black chickpeas) - आधी कटोरी",
-            "नमक (Salt)",
-            "टमाटर (Tomato) - एक",
-            "काली मिर्च (Black pepper)",
-            "जीरा (Cumin)",
-            "हींग (Asafoetida)",
-            "धनिया पाउडर (Coriander powder)"
-        ],
-        "recipe": "1. चने उबाल लीजिए। 2. कढ़ाई में हींग और जीरा रोस्ट कीजिए और पीसा टमाटर भून लीजिए। 3. उसमें उबले चने डालिए और सभी मसाले डालकर 5 मिनट पकाए। थोड़े चने कड़छी से पीस ले। 4. ध्यान रहे चने पतले होने चाहिए।"
-    },
-    {
-        "id": 6,
-        "name": "मिलेटस की रोटी",
-        "category": "Roti",
-        "ingredients": [
-            "आटा नंबर 1 (गुरु जी की बास्केट से)",
-            "सब्जी - गाजर, गोभी, जुकुनी, मेथी, बथुआ कोई भी एक"
-        ],
-        "recipe": "1. एक छोटी कड़छी आटा सब्जी डालकर गर्म पानी से गूंध ले। आधी सब्जी आधा आटा। 2. तवे पर रोटी साफ कपड़े से सेके।"
-    },
-    {
-        "id": 7,
-        "name": "सलाद",
-        "category": "Salad",
-        "ingredients": [
-            "गाजर (Carrot)",
-            "पत्ता गोभी (Cabbage)",
-            "शिमला मिर्च (Bell pepper - हरी, लाल या पीली)",
-            "खीरा (Cucumber)",
-            "ककड़ी (Cucumber)",
-            "हरा धनिया (Coriander)",
-            "चुकंदर (Beetroot)",
-            "शहद (Honey)"
-        ],
-        "recipe": "सभी सब्जियां लंबी लंबी काट ले उसमें नमक, मिर्च और शहद डाल आकर सर्व करे।"
-    },
-    {
-        "id": 8,
-        "name": "Steamed Vegetable",
-        "category": "Sabji",
-        "ingredients": [
-            "गाजर (Carrot)",
-            "Beans",
-            "जुकुनी (Zucchini)",
-            "घिया (Bottle gourd)",
-            "शिमला मिर्च (Bell pepper - हरी, लाल या पीली)",
-            "ब्रोकली (Broccoli)",
-            "गोभी (Cauliflower)",
-            "पत्ता गोभी (Cabbage)",
-            "पेठा (Ash gourd)",
-            "नमक (Salt)",
-            "काली मिर्च (Black pepper)",
-            "धनिया पाउडर (Coriander powder)",
-            "पीले नींबू का रस (Lemon juice) - आधा",
-            "Organo herb - आधा छोटा चम्मच (गुरु जी की बास्केट से)",
-            "भूना जीरा (Roasted cumin)"
-        ],
-        "recipe": "1. सभी सब्जियों को धोकर छोटा - छोटा काट ले। 2. एक भिगोने में गर्म पानी ले। उसके ऊपर स्टील की छलनी में सब्जियां डालकर रखे। ऊपर से प्लेट ढक दे। सब्जियां बॉयल नहीं करनी अपितु steamed करनी है। 5 से 10 मिनट में सब्जियां स्टीम हो जाएगी। 3. Steamed veg को कढ़ाई में डाल दे। उसमें सभी मसाले डाल दे। अंत में नींबू रस और organo herb डाले। गर्म सर्व करे। 4. ध्यान दीजिए तैयार सब्जी कम से कम एक बड़ा bowl होनी चाहिए।"
+        "recipe": "एप्पल को wash करके बिना छीले, काटकर, बीज निकालकर बेलन से CRUSH कर ले। पानी में शहद को छोड़कर सभी वस्तुएं डालकर sim Gas पर 10 से 15 मिनट उबलने के लिए रखे जब तक कि पानी आधा (3/4 गिलास) न रह जाए। छलनी से छानकर शहद मिलाकर गर्म ड्रिंक serve कीजिए।"
     }
 ]

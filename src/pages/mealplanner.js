@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Calendar, Edit3, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Upload, Youtube } from 'lucide-react';
 import sampleDishes from "./meals.json"
-import Header from '../components/header'
 
 const DietPlannerApp = () => {
   const [recipes, setRecipes] = useState([]);
   const [days, setDays] = useState(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
-  const [customTabs, setCustomTabs] = useState(['Special Diet']);
+  const [customTabs, setCustomTabs] = useState(['Ekadashi']);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [selectedMealSlot, setSelectedMealSlot] = useState(null);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [mealPlan, setMealPlan] = useState({});
   const [modalView, setModalView] = useState('categories');
+  const navigate = useNavigate();
   // Change from a boolean to a string to track which category is open
   const [openCategory, setOpenCategory] = useState("");
 
@@ -20,14 +22,11 @@ const DietPlannerApp = () => {
     const initialMealPlan = {};
     [...days, ...customTabs].forEach(day => {
       initialMealPlan[day] = {
-        'Early Morning (6-7 AM)': [],
-        'Breakfast (8-9 AM)': [],
-        'Mid-Morning (10-11 AM)': [],
-        'Lunch (12-1 PM)': [],
-        'Afternoon (3-4 PM)': [],
-        'Evening (5-6 PM)': [],
-        'Dinner (7-8 PM)': [],
-        'Before Bed (9-10 PM)': []
+        'Before Breakfast (8:30 AM)': [],
+        'Breakfast (9:30 AM)': [],
+        'Lunch (12 PM)': [],
+        'Katha ke beech (5 PM)': [],
+        'Dinner (7:15 PM)': [],
       };
     });
     setMealPlan(initialMealPlan);
@@ -42,14 +41,11 @@ const DietPlannerApp = () => {
   }, [days, customTabs]);
 
   const mealSlots = [
-    'Early Morning (6-7 AM)',
-    'Breakfast (8-9 AM)',
-    'Mid-Morning (10-11 AM)',
-    'Lunch (12-1 PM)',
-    'Afternoon (3-4 PM)',
-    'Evening (5-6 PM)',
-    'Dinner (7-8 PM)',
-    'Before Bed (9-10 PM)'
+    'Before Breakfast (8:30 AM)',
+    'Breakfast (9:30 AM)',
+    'Lunch (12 PM)',
+    'Katha ke beech (5 PM)',
+    'Dinner (7:15 PM)',
   ];
 
   const categories = [...new Set(recipes.map(recipe => recipe.category))].sort();
@@ -103,16 +99,62 @@ const DietPlannerApp = () => {
 
   return (
     <div className="flex flex-col h-screen bg-purple-50">
-      <Header />
-
+      <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 shadow-lg relative">
+        <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex space-x-2 z-20">
+          <button
+            onClick={() => navigate("/youtube")}
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-1 sm:p-1 rounded-full transition-all duration-300 shadow-lg"
+            title="YouTube Channel"
+            aria-label="YouTube Channel"
+          >
+            <Youtube size={20} color="white" />
+          </button>
+          <button
+            onClick={() => navigate("/upload")}
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm p-1 sm:p-1 rounded-full transition-all duration-300 shadow-lg"
+            title="Upload Calendar"
+            aria-label="Upload Calendar"
+          >
+            <Upload size={20} color="white" />
+          </button>
+        </div>
+        <div className={`max-w-6xl mx-auto px-4 sm:px-6 py-2 sm:py-3 md:py-4`}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+              <div className="relative">
+                <img
+                  className={`h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 relative z-10 p-1 rounded-full cursor-pointer`}
+                  src="/GBPS-Calendar/logo.png"
+                  alt="GBPS Trust Logo"
+                  onClick={() => navigate("/")}
+                />
+              </div>
+              <div className="text-center md:text-left mt-2 md:mt-0">
+                <h1 className={`text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-md mb-0`}>
+                  Guri Ji's Health Protective Diet Chart
+                </h1>
+              </div>
+            </div>
+            <div className={`hidden lg:block`}>
+              <div className="bg-gradient-to-r from-purple-700/70 to-pink-700/70 backdrop-blur-sm px-6 py-3 rounded-xl text-center">
+                <p className="text-white text-lg font-medium">
+                  Serving the Vaishnava Community
+                </p>
+                <div className="mt-1 h-0.5 w-24 mx-auto bg-gradient-to-r from-yellow-200 to-yellow-400"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={`h-0.5 sm:h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400`}></div>
+      </div>
       {/* Tab Navigation */}
       <div className="flex overflow-x-auto bg-white shadow py-2 px-4 border-b border-purple-100">
         {days.map((day, index) => (
           <button
             key={day}
             className={`px-4 py-2 mx-1 rounded-lg whitespace-nowrap transition-all duration-300 ${activeDayIndex === index
-                ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
-                : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
+              ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
+              : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
               }`}
             onClick={() => setActiveDayIndex(index)}
           >
@@ -123,8 +165,8 @@ const DietPlannerApp = () => {
           <button
             key={tab}
             className={`px-4 py-2 mx-1 rounded-lg whitespace-nowrap transition-all duration-300 ${activeDayIndex === days.length + index
-                ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
-                : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
+              ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
+              : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
               }`}
             onClick={() => setActiveDayIndex(days.length + index)}
           >
