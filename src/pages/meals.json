@@ -24,7 +24,7 @@
     {
         "id": 3,
         "name": "फल मिक्स 1",
-        "category": "Salad",
+        "category": "Fruit",
         "ingredients": [
             "पपीता",
             "अमरूद",
@@ -36,7 +36,7 @@
     {
         "id": 4,
         "name": "फल मिक्स 2",
-        "category": "Salad",
+        "category": "Fruit",
         "ingredients": [
             "पपीता",
             "आम",
@@ -48,7 +48,7 @@
     {
         "id": 5,
         "name": "फल मिक्स 3",
-        "category": "Salad",
+        "category": "Fruit",
         "ingredients": [
             "सेब",
             "अमरूद",
@@ -60,7 +60,7 @@
     {
         "id": 6,
         "name": "फल मिक्स 4",
-        "category": "Salad",
+        "category": "Fruit",
         "ingredients": [
             "तरबूज",
             "खरबूजा",
@@ -72,7 +72,7 @@
     {
         "id": 7,
         "name": "फल मिक्स 5",
-        "category": "Salad",
+        "category": "Fruit",
         "ingredients": [
             "नाशपाती",
             "अमरूद",
@@ -84,7 +84,7 @@
     {
         "id": 8,
         "name": "फल मिक्स 6",
-        "category": "Salad",
+        "category": "Fruit",
         "ingredients": [
             "ड्रैगन",
             "लीची",
@@ -96,7 +96,7 @@
     {
         "id": 9,
         "name": "फल मिक्स 7",
-        "category": "Salad",
+        "category": "Fruit",
         "ingredients": [
             "अनानास",
             "अनार",
