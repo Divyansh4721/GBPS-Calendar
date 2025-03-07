@@ -3,7 +3,69 @@ import { X, Plus, Calendar, Edit3, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, Youtube } from 'lucide-react';
 import sampleDishes from "./meals.json"
-
+function jsonToCSV(data) {
+  const maxIngredients = data.reduce((max, item) => Math.max(max, item.ingredients.length), 0);
+  let headers = ['id', 'name', 'category', 'recipe'];
+  for (let i = 1; i <= maxIngredients; i++) headers.push(`ingredient${i}`);
+  let csv = headers.join(',') + '\n';
+  data.forEach(item => {
+    const row = [
+      item.id,
+      `"${item.name.replace(/"/g, '""')}"`,
+      `"${item.category.replace(/"/g, '""')}"`,
+      `"${item.recipe.replace(/"/g, '""')}"`
+    ];
+    for (let i = 0; i < maxIngredients; i++) {
+      row.push(i < item.ingredients.length ? `"${item.ingredients[i].replace(/"/g, '""')}"` : '');
+    }
+    csv += row.join(',') + '\n';
+  });
+  return csv;
+}
+function csvToJSON(csv) {
+  const lines = csv.trim().split('\n');
+  const headers = lines[0].split(',');
+  const ingredientStartIdx = headers.findIndex(h => h.startsWith('ingredient'));
+  const result = [];
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseCSVLine(lines[i]);
+    if (row.length < 4) continue;
+    const item = {
+      id: parseInt(row[0]),
+      name: row[1],
+      category: row[2],
+      ingredients: [],
+      recipe: row[3]
+    };
+    for (let j = ingredientStartIdx; j < row.length; j++) {
+      if (row[j] && row[j].trim()) item.ingredients.push(row[j]);
+    }
+    result.push(item);
+  }
+  return result;
+}
+function parseCSVLine(line) {
+  const result = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') {
+      if (i + 1 < line.length && line[i + 1] === '"') {
+        field += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (line[i] === ',' && !inQuotes) {
+      result.push(field);
+      field = "";
+    } else {
+      field += line[i];
+    }
+  }
+  result.push(field);
+  return result;
+}
 const DietPlannerApp = () => {
   const [recipes, setRecipes] = useState([]);
   const [days, setDays] = useState(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
@@ -17,7 +79,6 @@ const DietPlannerApp = () => {
   const navigate = useNavigate();
   // Change from a boolean to a string to track which category is open
   const [openCategory, setOpenCategory] = useState("");
-
   useEffect(() => {
     const initialMealPlan = {};
     [...days, ...customTabs].forEach(day => {
@@ -33,13 +94,13 @@ const DietPlannerApp = () => {
     const loadRecipes = async () => {
       try {
         setRecipes(sampleDishes);
+        // console.log(jsonToCSV(sampleDishes));
       } catch (error) {
         console.error("Error loading recipes:", error);
       }
     };
     loadRecipes();
   }, [days, customTabs]);
-
   const mealSlots = [
     'Before Breakfast (8:30 AM)',
     'Breakfast (9:30 AM)',
@@ -47,15 +108,12 @@ const DietPlannerApp = () => {
     'Katha ke beech (5 PM)',
     'Dinner (7:15 PM)',
   ];
-
   const categories = [...new Set(recipes.map(recipe => recipe.category))].sort();
-
   const handleAddMeal = (slot) => {
     setSelectedMealSlot(slot);
     setModalView('categories');
     setShowModal(true);
   };
-
   const handleAddRecipeToMealPlan = (recipe) => {
     if (!selectedMealSlot) return;
     const currentDay = [...days, ...customTabs][activeDayIndex];
@@ -65,14 +123,12 @@ const DietPlannerApp = () => {
     setSelectedRecipe(null);
     setShowModal(false);
   };
-
   const handleRemoveMeal = (slot, index) => {
     const currentDay = [...days, ...customTabs][activeDayIndex];
     const updatedMealPlan = { ...mealPlan };
     updatedMealPlan[currentDay][slot].splice(index, 1);
     setMealPlan(updatedMealPlan);
   };
-
   const addCustomTab = () => {
     const tabName = prompt("Enter name for new special category day:");
     if (tabName && tabName.trim() !== "") {
@@ -86,17 +142,14 @@ const DietPlannerApp = () => {
       setMealPlan(updatedMealPlan);
     }
   };
-
   const truncateText = (text, length = 30) => {
     if (!text) return "";
     return text.length > length ? text.substring(0, length) + '...' : text;
   };
-
   // Toggle function for handling accordion
   const toggleCategory = (category) => {
     setOpenCategory(prevCategory => prevCategory === category ? "" : category);
   };
-
   return (
     <div className="flex flex-col h-screen bg-purple-50">
       <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 shadow-lg relative">
@@ -180,14 +233,12 @@ const DietPlannerApp = () => {
           <Plus size={16} className="mr-1" /> Add Special Day
         </button>
       </div>
-
       {/* Main Content */}
       <div className="flex-grow overflow-y-auto p-4">
         <h2 className="text-xl font-semibold mb-4 flex items-center text-purple-800">
           <Calendar className="mr-2 text-pink-500" /> {[...days, ...customTabs][activeDayIndex]} Meal Plan
           <div className="ml-2 h-0.5 w-16 bg-gradient-to-r from-yellow-300 to-amber-400"></div>
         </h2>
-
         {/* Meal Slots */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {mealSlots.map((slot) => {
@@ -232,7 +283,6 @@ const DietPlannerApp = () => {
           })}
         </div>
       </div>
-
       {/* Add Meal Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -253,14 +303,12 @@ const DietPlannerApp = () => {
               </button>
             </div>
             <div className="h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400"></div>
-
             <div className="flex-grow overflow-y-auto p-4">
               {modalView === 'categories' && (
                 <div className="w-full">
                   {categories.map((category) => {
                     // Check if this specific category is open
                     const isCategoryOpen = openCategory === category;
-
                     return (
                       <div key={category} className="mb-4 border rounded-md overflow-hidden border-purple-200">
                         <button
@@ -305,7 +353,6 @@ const DietPlannerApp = () => {
                   })}
                 </div>
               )}
-
               {/* Recipe Details */}
               {modalView === 'details' && selectedRecipe && (
                 <div className="w-full">
@@ -322,7 +369,6 @@ const DietPlannerApp = () => {
                     <h3 className="text-xl font-semibold mb-2 text-purple-700">{selectedRecipe.name}</h3>
                     <p className="text-sm text-pink-500 mb-4">Category: {selectedRecipe.category}</p>
                     <div className="h-0.5 w-32 bg-gradient-to-r from-yellow-300 to-amber-400 mb-4"></div>
-
                     <div className="mb-6">
                       <h4 className="font-medium text-purple-700 mb-2 border-b pb-1 border-purple-200">Ingredients:</h4>
                       {selectedRecipe.ingredients.length > 0 ? (
@@ -362,5 +408,4 @@ const DietPlannerApp = () => {
     </div>
   );
 };
-
 export default DietPlannerApp;
