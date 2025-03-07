@@ -32,7 +32,7 @@ const Header = ({ children }) => {
             <div className="relative">
               <img
                 className={`${isSlim ? 'h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24' : 'h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28'} relative z-10 p-1 rounded-full cursor-pointer`}
-                src="/GBPS-Calendar/logo.png"
+                src="/assets/images/logo.png"
                 alt="GBPS Trust Logo"
                 onClick={() => navigate("/")}
               />

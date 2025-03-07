@@ -73,8 +73,8 @@ const CalendarView = ({ events, selectedDate, onSelectDate }) => {
             const hasEvents = dayEvents.length > 0;
             // Get the first event's image if there are events
             const eventImage = hasEvents && dayEvents[0].imageURL ?
-              `/GBPS-Calendar/assets/images/${dayEvents[0].imageURL}.jpg` :
-              `/GBPS-Calendar/logo.png`;
+              `/assets/images/${dayEvents[0].imageURL}.jpg` :
+              `/assets/images/logo.png`;
             return (
               <button
                 key={day}
@@ -134,7 +134,7 @@ const EventCard = ({ event }) => {
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-md overflow-hidden">
             <img
-              src={`/GBPS-Calendar/${event.imageURL ? 'assets/images/' + event.imageURL + '.jpg' : 'logo.png'}`}
+              src={`/assets/images/${event.imageURL ? event.imageURL + '.jpg' : 'logo.png'}`}
               alt="Event"
               className="w-full h-full object-cover"
             />
