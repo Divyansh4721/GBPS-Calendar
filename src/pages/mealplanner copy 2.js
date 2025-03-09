@@ -2,17 +2,19 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { X, Plus, Calendar, Edit3, Clock, Save, CheckCircle, Upload, Youtube, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc, 
+  onSnapshot, 
   runTransaction,
   serverTimestamp
 } from 'firebase/firestore';
 import { debounce } from 'lodash';
+
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCO-Eo1BgF8AZDpeR3hF-S6qSt5DJcTtdg",
   authDomain: "gbpscalendar.firebaseapp.com",
@@ -21,9 +23,13 @@ const firebaseConfig = {
   messagingSenderId: "615502714228",
   appId: "1:615502714228:web:a6bb2c10699900cefa4821"
 };
+
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const mealPlanDocRef = doc(db, "MealPlan", "currentPlan");
+
+// Meal time slots - defined once outside component
 const DEFAULT_MEAL_SLOTS = [
   'Before Breakfast (8:30 AM)',
   'Breakfast (9:30 AM)',
@@ -31,14 +37,21 @@ const DEFAULT_MEAL_SLOTS = [
   'Katha ke beech (5 PM)',
   'Dinner (7:15 PM)',
 ];
+
+// Predefined categories for recipes - defined once outside component
 const PREDEFINED_CATEGORIES = ['Chatni', 'Daal', 'Fruits', 'Roti', 'Sabji', 'Salad', 'Soup'];
+
 const DietPlannerApp = () => {
   const navigate = useNavigate();
+  
+  // Core state
   const [recipes, setRecipes] = useState([]);
   const [days, setDays] = useState(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
   const [customTabs, setCustomTabs] = useState(['Ekadashi']);
   const [mealPlan, setMealPlan] = useState({});
   const [activeDayIndex, setActiveDayIndex] = useState(0);
+  
+  // UI state
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [dataInitialized, setDataInitialized] = useState(false);
@@ -51,55 +64,78 @@ const DietPlannerApp = () => {
   const [editedRecipe, setEditedRecipe] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [recipeToDelete, setRecipeToDelete] = useState(null);
-  const [saveStatus, setSaveStatus] = useState(null);
-  const currentDay = useMemo(() =>
-    [...days, ...customTabs][activeDayIndex],
+  const [saveStatus, setSaveStatus] = useState(null); // New state for save status feedback
+
+  // Calculate the current day based on activeDayIndex
+  const currentDay = useMemo(() => 
+    [...days, ...customTabs][activeDayIndex], 
     [days, customTabs, activeDayIndex]
   );
-  const categories = useMemo(() =>
+
+  // Get unique categories from both recipes and predefined list
+  const categories = useMemo(() => 
     [...new Set([...recipes.map(recipe => recipe.category), ...PREDEFINED_CATEGORIES])].sort(),
     [recipes]
   );
+
+  // Initialize Firebase data
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
+        
+        // Check if document exists
         const docSnap = await getDoc(mealPlanDocRef);
+        
         if (!docSnap.exists()) {
+          // Initialize with default data
           await initializeMealPlanInFirebase();
         }
+        
+        // Set up a realtime listener
         const unsubscribe = onSnapshot(mealPlanDocRef, (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
+            
+            // Update state with data from Firebase
             if (data.recipes) setRecipes(data.recipes);
             if (data.days) setDays(data.days);
             if (data.customTabs) setCustomTabs(data.customTabs);
             if (data.mealPlan) setMealPlan(data.mealPlan);
+            
             setDataInitialized(true);
             setIsLoading(false);
           }
-        },
-          (error) => {
-            console.error("Error in Firebase listener:", error);
-            setIsLoading(false);
-          });
+        }, 
+        (error) => {
+          console.error("Error in Firebase listener:", error);
+          setIsLoading(false);
+        });
+        
+        // Clean up listener
         return () => unsubscribe();
       } catch (error) {
         console.error("Error loading data from Firebase:", error);
         setIsLoading(false);
       }
     };
+    
     loadData();
   }, []);
+
+  // Initialize meal plan in Firebase
   const initializeMealPlanInFirebase = async () => {
     try {
       const initialMealPlan = {};
+      
+      // Create empty structure for each day
       [...days, ...customTabs].forEach(day => {
         initialMealPlan[day] = {};
         DEFAULT_MEAL_SLOTS.forEach(slot => {
           initialMealPlan[day][slot] = [];
         });
       });
+      
       await setDoc(mealPlanDocRef, {
         recipes: [],
         days: days,
@@ -108,36 +144,49 @@ const DietPlannerApp = () => {
         predefinedCategories: PREDEFINED_CATEGORIES,
         lastUpdated: serverTimestamp()
       });
+      
       setMealPlan(initialMealPlan);
     } catch (error) {
       console.error("Error initializing data in Firebase:", error);
     }
   };
+
+  // Optimized save function using transactions
   const saveDataToFirebase = async (dataToSave) => {
     try {
       setIsSaving(true);
       setSaveStatus("Saving...");
+      
+      // Use a transaction for atomic updates
       await runTransaction(db, async (transaction) => {
         const docSnap = await transaction.get(mealPlanDocRef);
+        
         if (!docSnap.exists()) {
+          // If document doesn't exist, create it
           transaction.set(mealPlanDocRef, {
             ...dataToSave,
             lastUpdated: serverTimestamp()
           });
         } else {
+          // Update only provided fields
           transaction.update(mealPlanDocRef, {
             ...dataToSave,
             lastUpdated: serverTimestamp()
           });
         }
       });
+      
       setSaveStatus("Saved successfully!");
+      
+      // Clear success message after 2 seconds
       setTimeout(() => {
         setSaveStatus(null);
       }, 2000);
     } catch (error) {
       console.error("Error saving data to Firebase:", error);
       setSaveStatus("Save failed. Try again.");
+      
+      // Clear error message after 3 seconds
       setTimeout(() => {
         setSaveStatus(null);
       }, 3000);
@@ -145,56 +194,90 @@ const DietPlannerApp = () => {
       setIsSaving(false);
     }
   };
+
+  // Debounced save for batch updates
   const debouncedSave = useCallback(
     debounce((data) => saveDataToFirebase(data), 500),
     []
   );
+
+  // Event handlers
   const handleAddMeal = (slot) => {
     setSelectedMealSlot(slot);
     setModalView('categories');
     setShowModal(true);
   };
+
   const handleAddRecipeToMealPlan = async (recipe) => {
     if (!selectedMealSlot) return;
+    
+    // Create a deep copy of the meal plan
     const updatedMealPlan = JSON.parse(JSON.stringify(mealPlan));
+    
+    // Ensure the day and slot exists
     if (!updatedMealPlan[currentDay]) {
       updatedMealPlan[currentDay] = {};
     }
+    
     if (!updatedMealPlan[currentDay][selectedMealSlot]) {
       updatedMealPlan[currentDay][selectedMealSlot] = [];
     }
+    
+    // Add the recipe
     updatedMealPlan[currentDay][selectedMealSlot].push(recipe);
+    
+    // Update local state
     setMealPlan(updatedMealPlan);
     setSelectedRecipe(null);
     setShowModal(false);
+    
+    // Save to Firebase
     await saveDataToFirebase({ mealPlan: updatedMealPlan });
   };
+
   const handleRemoveMeal = async (slot, index) => {
+    // Create a deep copy of the meal plan
     const updatedMealPlan = JSON.parse(JSON.stringify(mealPlan));
+    
     if (updatedMealPlan[currentDay] && updatedMealPlan[currentDay][slot]) {
+      // Remove the meal at the specified index
       updatedMealPlan[currentDay][slot].splice(index, 1);
+      
+      // Update local state
       setMealPlan(updatedMealPlan);
+      
+      // Save to Firebase
       await saveDataToFirebase({ mealPlan: updatedMealPlan });
     }
   };
+
   const handleAddNewRecipe = async () => {
+    // Create a new recipe
     const newRecipe = {
-      id: `recipe_${Date.now()}`,
+      id: `recipe_${Date.now()}`, // More semantic ID
       name: "New Recipe",
       category: PREDEFINED_CATEGORIES[0],
       ingredients: [],
       recipe: "",
       createdAt: new Date().toISOString()
     };
+    
+    // Add to recipes list
     const updatedRecipes = [...recipes, newRecipe];
     setRecipes(updatedRecipes);
+    
+    // Set up for editing
     setSelectedRecipe(newRecipe);
     setEditRecipeId(newRecipe.id);
     setEditedRecipe(newRecipe);
     setModalView('details');
+    
+    // Save to Firebase
     await saveDataToFirebase({ recipes: updatedRecipes });
   };
+
   const handleCategoryRecipeAdd = async (category) => {
+    // Create a new recipe in the specific category
     const newRecipe = {
       id: `recipe_${Date.now()}_${category.toLowerCase().replace(/\s/g, '_')}`,
       name: `New ${category} Recipe`,
@@ -203,49 +286,81 @@ const DietPlannerApp = () => {
       recipe: "",
       createdAt: new Date().toISOString()
     };
+    
+    // Add to recipes list
     const updatedRecipes = [...recipes, newRecipe];
     setRecipes(updatedRecipes);
+    
+    // Set up for editing
     setSelectedRecipe(newRecipe);
     setEditRecipeId(newRecipe.id);
     setEditedRecipe(newRecipe);
     setModalView('details');
+    
+    // Save to Firebase
     await saveDataToFirebase({ recipes: updatedRecipes });
   };
+
   const addCustomTab = async () => {
     const tabName = prompt("Enter name for new special category day:");
+    
     if (tabName && tabName.trim() !== "") {
       const newTabName = tabName.trim();
       const newTabs = [...customTabs, newTabName];
+      
+      // Update custom tabs
       setCustomTabs(newTabs);
+      
+      // Add the new day to meal plan structure
       const updatedMealPlan = { ...mealPlan };
       updatedMealPlan[newTabName] = {};
+      
       DEFAULT_MEAL_SLOTS.forEach(slot => {
         updatedMealPlan[newTabName][slot] = [];
       });
+      
+      // Update meal plan
       setMealPlan(updatedMealPlan);
-      await saveDataToFirebase({
+      
+      // Save to Firebase
+      await saveDataToFirebase({ 
         customTabs: newTabs,
         mealPlan: updatedMealPlan
       });
     }
   };
+
   const handleEditRecipe = (recipe) => {
     setEditRecipeId(recipe.id);
     setEditedRecipe({ ...recipe });
   };
+
   const handleSaveEdit = async () => {
     if (!editedRecipe) return;
+    
+    // Add last updated timestamp
     editedRecipe.lastUpdated = new Date().toISOString();
+    
+    // Update recipes
     const updatedRecipes = recipes.map(recipe =>
       recipe.id === editedRecipe.id ? editedRecipe : recipe
     );
+    
     setRecipes(updatedRecipes);
+    
+    // Update selected recipe if it's being edited
     if (selectedRecipe && selectedRecipe.id === editedRecipe.id) {
       setSelectedRecipe(editedRecipe);
     }
+    
+    // Reset edit state
     setEditRecipeId(null);
+    
+    // Create a deep copy of the meal plan
     const updatedMealPlan = JSON.parse(JSON.stringify(mealPlan));
     let mealPlanUpdated = false;
+    
+    // Update any instances of this recipe in the meal plan
     Object.keys(updatedMealPlan).forEach(day => {
       Object.keys(updatedMealPlan[day]).forEach(slot => {
         updatedMealPlan[day][slot] = updatedMealPlan[day][slot].map(mealItem => {
@@ -257,107 +372,144 @@ const DietPlannerApp = () => {
         });
       });
     });
+    
+    // Update meal plan if needed
     if (mealPlanUpdated) {
       setMealPlan(updatedMealPlan);
     }
+    
+    // Save updates to Firebase
     await saveDataToFirebase({
       recipes: updatedRecipes,
       ...(mealPlanUpdated && { mealPlan: updatedMealPlan })
     });
   };
+
   const handleCancelEdit = () => {
+    // If this is a new recipe that was being edited, remove it
     if (selectedRecipe && editRecipeId) {
       const isNewRecipe = selectedRecipe.name === "New Recipe" ||
         selectedRecipe.name.startsWith("New ");
+      
       if (isNewRecipe) {
+        // Remove from recipes
         const updatedRecipes = recipes.filter(r => r.id !== selectedRecipe.id);
         setRecipes(updatedRecipes);
+        
+        // Save to Firebase
         debouncedSave({ recipes: updatedRecipes });
       }
     }
+    
+    // Reset edit state
     setEditRecipeId(null);
     setEditedRecipe(null);
+    
+    // Go back to categories if it was a new recipe
     if (selectedRecipe && (selectedRecipe.name === "New Recipe" ||
       selectedRecipe.name.startsWith("New "))) {
       setModalView('categories');
       setSelectedRecipe(null);
     }
   };
+
   const handleDeleteRecipe = (recipeId) => {
     setRecipeToDelete(recipeId);
     setShowConfirmDialog(true);
   };
+
   const confirmDeleteRecipe = async () => {
     if (!recipeToDelete) return;
+    
+    // Remove from recipes
     const updatedRecipes = recipes.filter(recipe => recipe.id !== recipeToDelete);
     setRecipes(updatedRecipes);
+    
+    // Close details view if we're deleting the selected recipe
     if (selectedRecipe && selectedRecipe.id === recipeToDelete) {
       setModalView('categories');
       setSelectedRecipe(null);
     }
+    
+    // Create a deep copy of the meal plan
     const updatedMealPlan = JSON.parse(JSON.stringify(mealPlan));
     let mealPlanUpdated = false;
+    
+    // Remove any instances of this recipe from the meal plan
     Object.keys(updatedMealPlan).forEach(day => {
       Object.keys(updatedMealPlan[day]).forEach(slot => {
         const originalLength = updatedMealPlan[day][slot].length;
-        updatedMealPlan[day][slot] = updatedMealPlan[day][slot].filter(mealItem =>
+        updatedMealPlan[day][slot] = updatedMealPlan[day][slot].filter(mealItem => 
           mealItem.id !== recipeToDelete
         );
+        
         if (originalLength !== updatedMealPlan[day][slot].length) {
           mealPlanUpdated = true;
         }
       });
     });
+    
+    // Update meal plan if needed
     if (mealPlanUpdated) {
       setMealPlan(updatedMealPlan);
     }
+    
+    // Save to Firebase
     await saveDataToFirebase({
       recipes: updatedRecipes,
       ...(mealPlanUpdated && { mealPlan: updatedMealPlan })
     });
+    
+    // Reset confirmation dialog
     setShowConfirmDialog(false);
     setRecipeToDelete(null);
   };
+
+  // Recipe editing helpers
   const handleInputChange = (field, value) => {
     setEditedRecipe(prev => ({
       ...prev,
       [field]: value
     }));
   };
+
   const handleIngredientChange = (index, value) => {
     const updatedIngredients = [...editedRecipe.ingredients];
     updatedIngredients[index] = value;
+    
     setEditedRecipe(prev => ({
       ...prev,
       ingredients: updatedIngredients
     }));
   };
+
   const addIngredient = () => {
     setEditedRecipe(prev => ({
       ...prev,
       ingredients: [...prev.ingredients, ""]
     }));
   };
+
   const removeIngredient = (index) => {
     const updatedIngredients = [...editedRecipe.ingredients];
     updatedIngredients.splice(index, 1);
+    
     setEditedRecipe(prev => ({
       ...prev,
       ingredients: updatedIngredients
     }));
   };
+
   const toggleCategory = (category) => {
     setOpenCategory(prev => prev === category ? "" : category);
   };
+
   const truncateText = (text, length = 30) => {
     if (!text) return "";
     return text.length > length ? text.substring(0, length) + '...' : text;
   };
-  const handleViewRecipe = (recipe) => {
-    setSelectedRecipe(recipe);
-    setModalView('details');
-    setShowModal(true);
-  };
+
+  // Loading screen
   if (isLoading && !dataInitialized) {
     return (
       <div className="flex justify-center items-center h-screen bg-purple-50">
@@ -371,8 +523,10 @@ const DietPlannerApp = () => {
       </div>
     );
   }
+
   return (
     <div className="flex flex-col h-screen bg-purple-50">
+      {/* Header */}
       <header className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 shadow-lg relative">
         <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex space-x-2 z-20">
           <button
@@ -392,6 +546,7 @@ const DietPlannerApp = () => {
             <Upload size={20} color="white" />
           </button>
         </div>
+        
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 sm:py-3 md:py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
@@ -421,14 +576,17 @@ const DietPlannerApp = () => {
         </div>
         <div className="h-0.5 sm:h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400"></div>
       </header>
+
+      {/* Day Tabs */}
       <div className="flex overflow-x-auto bg-white shadow py-2 px-4 border-b border-purple-100 sticky top-0 z-10">
         {days.map((day, index) => (
           <button
             key={day}
-            className={`px-4 py-2 mx-1 rounded-lg whitespace-nowrap transition-all duration-300 ${activeDayIndex === index
-              ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
-              : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
-              }`}
+            className={`px-4 py-2 mx-1 rounded-lg whitespace-nowrap transition-all duration-300 ${
+              activeDayIndex === index
+                ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
+                : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
+            }`}
             onClick={() => setActiveDayIndex(index)}
           >
             {day}
@@ -437,10 +595,11 @@ const DietPlannerApp = () => {
         {customTabs.map((tab, index) => (
           <button
             key={tab}
-            className={`px-4 py-2 mx-1 rounded-lg whitespace-nowrap transition-all duration-300 ${activeDayIndex === days.length + index
-              ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
-              : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
-              }`}
+            className={`px-4 py-2 mx-1 rounded-lg whitespace-nowrap transition-all duration-300 ${
+              activeDayIndex === days.length + index
+                ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md'
+                : 'bg-purple-50 hover:bg-purple-100 text-purple-700'
+            }`}
             onClick={() => setActiveDayIndex(days.length + index)}
           >
             {tab}
@@ -453,14 +612,18 @@ const DietPlannerApp = () => {
           <Plus size={16} className="mr-1" /> Add Special Day
         </button>
       </div>
+
+      {/* Main Content */}
       <div className="flex-grow overflow-y-auto p-4">
+        {/* Save status indicator */}
         {saveStatus && (
-          <div className={`fixed bottom-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-500 ${saveStatus.includes("failed")
-            ? "bg-red-500 text-white"
-            : saveStatus.includes("Saved")
-              ? "bg-green-500 text-white"
-              : "bg-blue-500 text-white"
-            }`}>
+          <div className={`fixed bottom-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-500 ${
+            saveStatus.includes("failed") 
+              ? "bg-red-500 text-white" 
+              : saveStatus.includes("Saved") 
+                ? "bg-green-500 text-white"
+                : "bg-blue-500 text-white"
+          }`}>
             <div className="flex items-center">
               {saveStatus.includes("Saving") && (
                 <Loader size={18} className="animate-spin mr-2" />
@@ -475,10 +638,13 @@ const DietPlannerApp = () => {
             </div>
           </div>
         )}
+
         <h2 className="text-xl font-semibold mb-4 flex items-center text-purple-800">
           <Calendar className="mr-2 text-pink-500" /> {currentDay} Meal Plan
           <div className="ml-2 h-0.5 w-16 bg-gradient-to-r from-yellow-300 to-amber-400"></div>
         </h2>
+
+        {/* Meal slots grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {DEFAULT_MEAL_SLOTS.map((slot) => {
             const mealsInSlot = mealPlan[currentDay]?.[slot] || [];
@@ -499,24 +665,14 @@ const DietPlannerApp = () => {
                 {mealsInSlot.length > 0 ? (
                   <div className="space-y-3">
                     {mealsInSlot.map((meal, index) => (
-                      <div
-                        key={index}
-                        className="bg-purple-50 p-3 rounded-md flex justify-between items-start border-l-2 border-pink-300 hover:bg-purple-100 transition-colors duration-200 relative group"
-                      >
-                        <div
-                          className="flex-grow pr-6 cursor-pointer"
-                          onClick={() => handleViewRecipe(meal)}
-                        >
+                      <div key={index} className="bg-purple-50 p-3 rounded-md flex justify-between items-start border-l-2 border-pink-300 hover:bg-purple-100 transition-colors duration-200">
+                        <div>
                           <p className="font-medium text-purple-800">{meal.name}</p>
                           <p className="text-sm text-pink-600">{meal.category}</p>
-                          <span className="absolute right-8 top-1/2 transform -translate-y-1/2 text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-xs">View details</span>
                         </div>
                         <button
                           className="text-pink-500 hover:text-pink-700 p-1 rounded-full hover:bg-pink-100 transition-colors duration-200"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveMeal(slot, index);
-                          }}
+                          onClick={() => handleRemoveMeal(slot, index)}
                         >
                           <X size={16} />
                         </button>
@@ -539,13 +695,16 @@ const DietPlannerApp = () => {
           })}
         </div>
       </div>
+
+      {/* Recipe Selection Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
             <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 p-4 flex justify-between items-center text-white">
               <h2 className="text-xl font-semibold">
-                {modalView === 'categories'
-                  ? `Add Meal to ${selectedMealSlot}`
+                {modalView === 'categories' 
+                  ? `Add Meal to ${selectedMealSlot}` 
                   : selectedRecipe ? selectedRecipe.name : 'Recipe Details'}
               </h2>
               <button
@@ -562,9 +721,13 @@ const DietPlannerApp = () => {
               </button>
             </div>
             <div className="h-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400"></div>
+            
+            {/* Modal Content */}
             <div className="flex-grow overflow-y-auto p-4">
+              {/* Categories View */}
               {modalView === 'categories' && (
                 <div className="w-full">
+                  {/* Add New Recipe Button */}
                   <div className="mb-6">
                     <button
                       className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white p-3 rounded-lg font-semibold flex items-center justify-center hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-md"
@@ -573,11 +736,14 @@ const DietPlannerApp = () => {
                       <Plus size={20} className="mr-2" /> Create New Recipe
                     </button>
                   </div>
+
+                  {/* Category Accordions */}
                   <div className="space-y-4">
                     {categories.map((category) => {
                       const isCategoryOpen = openCategory === category;
                       const recipesInCategory = recipes.filter(recipe => recipe.category === category);
                       const hasRecipes = recipesInCategory.length > 0;
+                      
                       return (
                         <div key={category} className="border rounded-md overflow-hidden border-purple-200 shadow-sm hover:shadow-md transition-all duration-200">
                           <button
@@ -599,6 +765,8 @@ const DietPlannerApp = () => {
                               <span className="text-lg text-purple-500">{isCategoryOpen ? '−' : '+'}</span>
                             </div>
                           </button>
+                          
+                          {/* Category Content - Only rendered when open */}
                           {isCategoryOpen && (
                             <div className="p-2 space-y-2 bg-white">
                               {hasRecipes ? (
@@ -645,11 +813,14 @@ const DietPlannerApp = () => {
                   </div>
                 </div>
               )}
+              
+              {/* Recipe Details View */}
               {modalView === 'details' && selectedRecipe && (
                 <div className="w-full">
                   <button
                     className="mb-4 flex items-center text-purple-600 hover:text-purple-800"
                     onClick={() => {
+                      // Clean up any edits if going back to categories
                       if (editRecipeId) {
                         handleCancelEdit();
                       }
@@ -661,7 +832,9 @@ const DietPlannerApp = () => {
                     </svg>
                     Back to Categories
                   </button>
+                  
                   <div className="bg-white p-6 rounded-lg shadow-md border border-purple-200">
+                    {/* Recipe Header - Edit Mode or View Mode */}
                     {editRecipeId === selectedRecipe.id ? (
                       <>
                         <input
@@ -685,15 +858,21 @@ const DietPlannerApp = () => {
                       <>
                         <h3 className="text-xl font-semibold mb-2 text-purple-700">{selectedRecipe.name}</h3>
                         <p className="text-sm text-pink-500 mb-4 flex items-center">
+                          <span className="inline-block w-2 h-2 rounded-full bg-pink-500 mr-2"></span>
                           Category: {selectedRecipe.category}
                         </p>
                       </>
                     )}
+                    
                     <div className="h-0.5 w-32 bg-gradient-to-r from-yellow-300 to-amber-400 mb-4"></div>
+                    
+                    {/* Ingredients Section */}
                     <div className="mb-6">
                       <h4 className="font-medium text-purple-700 mb-2 border-b pb-1 border-purple-200 flex items-center">
+                        <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
                         Ingredients:
                       </h4>
+                      
                       {editRecipeId === selectedRecipe.id ? (
                         <div className="space-y-2 mt-3">
                           {editedRecipe.ingredients.map((ingredient, idx) => (
@@ -734,10 +913,14 @@ const DietPlannerApp = () => {
                         </>
                       )}
                     </div>
+                    
+                    {/* Recipe Instructions Section */}
                     <div className="mb-6">
                       <h4 className="font-medium text-purple-700 mb-2 border-b pb-1 border-purple-200 flex items-center">
+                        <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
                         Recipe Instructions:
                       </h4>
+                      
                       {editRecipeId === selectedRecipe.id ? (
                         <textarea
                           className="w-full h-40 p-2 border border-purple-300 rounded text-purple-600 mt-3 focus:ring focus:ring-purple-200 outline-none transition-all duration-200"
@@ -755,6 +938,8 @@ const DietPlannerApp = () => {
                         </div>
                       )}
                     </div>
+                    
+                    {/* Action Buttons */}
                     <div className="flex flex-wrap gap-3 mt-6">
                       {editRecipeId === selectedRecipe.id ? (
                         <>
@@ -801,6 +986,8 @@ const DietPlannerApp = () => {
           </div>
         </div>
       )}
+      
+      {/* Delete Confirmation Dialog */}
       {showConfirmDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden flex flex-col">
@@ -833,6 +1020,8 @@ const DietPlannerApp = () => {
           </div>
         </div>
       )}
+      
+      {/* Global Loading Overlay */}
       {isSaving && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-white p-6 rounded-lg shadow-xl flex items-center">
@@ -844,4 +1033,5 @@ const DietPlannerApp = () => {
     </div>
   );
 };
+
 export default DietPlannerApp;
